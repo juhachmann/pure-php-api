@@ -24,10 +24,10 @@ class ResponseWrapper:
     """
     def __init__(self, status: str, data = None, code: int = None, message: str | list = None):
         self.status = status
-        if data:
+        if data is not None:
             self.data = data
-        if message:
+        if message is not None:
             self.message = message
-        if code:
+        if code is not None:
             self.code = code
 

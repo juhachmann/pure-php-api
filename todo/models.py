@@ -60,7 +60,9 @@ class TarefaModel:
     def get_all(cls) -> list["TarefaModel"]:
         """Retrieve all records from database"""
         db_result = cls.repository.get_all()
-        return [cls._map_to_object(row) for row in db_result]
+        if len(db_result) > 0:
+            return [cls._map_to_object(row) for row in db_result]
+        return []
 
     @classmethod
     def find_by_id(cls, todo_id: int) -> "Todo | None":
@@ -98,7 +100,7 @@ class TarefaModel:
         Lança exceções de validação
         """
         todo = TarefaModel()
-        validation_errors = []
+        validation_errors = ["Erros de validação:"]
         validation_errors += cls._check_required_fields(request_body)
 
         try:
@@ -127,7 +129,7 @@ class TarefaModel:
             except InvalidData as e:
                 validation_errors.append(e.message)
 
-        if len(validation_errors) > 0:
+        if len(validation_errors) > 1:
             raise InvalidData(validation_errors)
 
         return todo
@@ -137,5 +139,7 @@ class TarefaModel:
         missing = []
         for key in cls.required_fields:
             if key not in request:
-                missing.append(key + " está faltando")
+                missing.append(key.capitalize() + " não pode ser nulo")
+            elif isinstance(request[key], str) and len(request[key]) == 0:
+                missing.append(key.capitalize() + " não pode ser vazio")
         return missing

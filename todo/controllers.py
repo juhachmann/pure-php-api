@@ -58,5 +58,6 @@ def sanitize_dict(request_body: dict[any, str]) -> dict:
     Aceita um dicionário com valores string
     """
     for key, value in request_body.items():
-        request_body[key] = escape(value)
+        if isinstance(value, str):
+            request_body[key] = escape(value)
     return request_body

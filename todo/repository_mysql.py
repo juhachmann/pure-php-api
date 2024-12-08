@@ -21,7 +21,8 @@ class TarefaRepositoryMySQL(TarefaRepository):
         try:
             conn = self._connect()
             cursor = conn.cursor(prepared=True)
-            stmt = "SELECT id, title, description, status, date_start, date_end FROM todos;"
+            stmt = ("SELECT id, title, description, status, date_start, date_end FROM todos"
+                    " ORDER BY id DESC;")
             cursor.execute(stmt)
             result = cursor.fetchall()
             conn.close()
