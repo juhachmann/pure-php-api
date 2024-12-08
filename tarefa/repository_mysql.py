@@ -1,8 +1,8 @@
 from mysql.connector import connect, Error
 from typing import TYPE_CHECKING
 
-from todo.repositories import TarefaRepository
-from todo.exceptions import SQLException
+from tarefa.repositories import TarefaRepository
+from tarefa.exceptions import SQLException
 
 if TYPE_CHECKING:
     from .models import TarefaModel

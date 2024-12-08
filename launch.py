@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 from server import run
 
 from api_handler import APIHandler
-from todo.models import TarefaModel
-from todo.repository_mysql import TarefaRepositoryMySQL
+from tarefa.models import TarefaModel
+from tarefa.repository_mysql import TarefaRepositoryMySQL
 
 """ Configurações e inicializações para a aplicação """
 

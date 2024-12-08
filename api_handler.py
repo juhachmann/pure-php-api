@@ -1,9 +1,9 @@
 from http.server import BaseHTTPRequestHandler
 import json, re
 
-from todo.controllers import delete, edit, add, find_by_id, get_all
-from todo.exceptions import NotFound, InvalidData
-from todo.views import ResponseWrapper, TarefaSerializer
+from tarefa.controllers import delete, edit, add, find_by_id, get_all
+from tarefa.exceptions import NotFound, InvalidData
+from tarefa.views import ResponseWrapper, TarefaSerializer
 
 
 class APIHandler(BaseHTTPRequestHandler):

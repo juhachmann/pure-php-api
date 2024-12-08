@@ -1,6 +1,6 @@
 from html import escape
 
-from todo.exceptions import NotFound, InvalidData
+from tarefa.exceptions import NotFound, InvalidData
 from .models import TarefaModel
 from .views import ResponseWrapper
 
