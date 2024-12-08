@@ -100,14 +100,13 @@ class TarefaModel:
         Lança exceções de validação
         """
         todo = TarefaModel()
-        validation_errors = ["Erros de validação:"]
-        validation_errors += cls._check_required_fields(request_body)
 
         try:
             todo.id = request_body["id"]
         except:
             pass
 
+        cls._check_required_fields(request_body)
         todo.title = request_body["title"]
         todo.description = request_body["description"]
         todo.date_start = request_body["date_start"]
@@ -115,31 +114,25 @@ class TarefaModel:
         try:
             todo.date_start = datetime.fromisoformat(request_body["date_start"])
         except Exception as e:
-            validation_errors.append("Data de início em formato inválido")
+            raise InvalidData(["Data de início em formato inválido"])
 
         if "date_end" in request_body and len(request_body["date_end"]) > 0:
             try:
                 todo.date_end = datetime.fromisoformat(request_body["date_end"])
             except Exception as e:
-                validation_errors.append("Data de início em formato inválido")
+                raise InvalidData(["Prazo final em formato inválido ou menor do que a data de início"])
 
         if "status" in request_body:
             try:
                 todo.status = request_body["status"]
             except InvalidData as e:
-                validation_errors.append(e.message)
-
-        if len(validation_errors) > 1:
-            raise InvalidData(validation_errors)
+                raise InvalidData(e.message)
 
         return todo
 
     @classmethod
     def _check_required_fields(cls, request: dict) -> list:
-        missing = []
         for key in cls.required_fields:
-            if key not in request:
-                missing.append(key.capitalize() + " não pode ser nulo")
-            elif isinstance(request[key], str) and len(request[key]) == 0:
-                missing.append(key.capitalize() + " não pode ser vazio")
-        return missing
+            if (key not in request or
+                    (isinstance(request[key], str) and len(request[key]) == 0)):
+                raise InvalidData(["Título, descrição e data de início não podem ser nulos."])
