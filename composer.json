@@ -1,0 +1,18 @@
+{
+    "name": "tarefas/backend",
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Juliana",
+            "email": "juliana.hachmann@gmail.com"
+        }
+    ],
+    "require": {
+      "ext-pdo": "*",
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
