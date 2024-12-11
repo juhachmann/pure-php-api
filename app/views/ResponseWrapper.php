@@ -2,7 +2,12 @@
 
 namespace app\views;
 
-class ResponseWrapper
+use JsonSerializable;
+
+/**
+ * Resposta em padrão JSend para APIs
+ */
+abstract class ResponseWrapper implements JsonSerializable
 {
 
     public mixed $data;
@@ -24,4 +29,16 @@ class ResponseWrapper
         $this->message = $message;
     }
 
+    public function jsonSerialize(): array
+    {
+        $attributes = [];
+        $attributes['status'] = $this->status;
+        $attributes['code'] = $this->code;
+        if(is_array($this->data) || $this->data != null) {
+            $attributes['data'] = $this->data;
+        }
+        if($this->message != null)
+            $attributes['message'] = $this->message;
+        return $attributes;
+    }
 }

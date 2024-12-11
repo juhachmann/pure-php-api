@@ -2,11 +2,12 @@
 
 namespace app;
 
+use Exception;
+use Dotenv\Dotenv;
 use app\controllers\TarefaController;
 use app\models\Tarefa;
 use app\models\TarefaRepositoryMySQL;
 use app\utils\Sanitizer;
-use Dotenv\Dotenv;
 
 class Bootstrap
 {
@@ -42,8 +43,8 @@ class Bootstrap
 
     private function setupDatabase() : void
     {
-        // Configurar a base de dados MySQL
 
+        // Configurar a base de dados MySQL
         $config = [
             'host' => $_ENV['DB_HOST_MYSQL'],
             'username' => $_ENV['DB_USER_MYSQL'],
@@ -55,25 +56,30 @@ class Bootstrap
 
         try {
             $this->tarefaRepository->migrate();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo($e->getMessage());
         }
 
     }
 
     private function instantiateClasses() : void {
+
         Tarefa::setRepository($this->tarefaRepository);
+
         $sanitizerUtil = new Sanitizer();
         $this->tarefaController = new TarefaController($sanitizerUtil);
+
     }
 
     private function setupRoutes() : void
     {
+
         $this->router->addRoute('GET', '/tarefas', $this->tarefaController, 'getAll');
         $this->router->addRoute('POST', '/tarefas', $this->tarefaController, 'create');
         $this->router->addRoute('GET', '/tarefas/:id', $this->tarefaController, 'getOne');
         $this->router->addRoute('PUT', '/tarefas/:id', $this->tarefaController, 'update');
         $this->router->addRoute('DELETE', '/tarefas/:id', $this->tarefaController, 'delete');
+
     }
 
 }

@@ -3,8 +3,10 @@
 namespace app\exceptions;
 
 use Exception;
-use Throwable;
 
+/**
+ * Exceção para erros de validação
+ */
 class ValidationException extends Exception
 {
 

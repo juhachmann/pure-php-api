@@ -16,7 +16,7 @@ class Tarefa implements JsonSerializable {
     private string $description;
     private string $status;
     private DateTime $dateStart;
-    private ?DateTime $dateEnd;
+    private DateTime $dateEnd;
 
     /**
      * @param int|null $id
@@ -24,11 +24,16 @@ class Tarefa implements JsonSerializable {
      * @param string $description
      * @param string|null $status
      * @param string $dateStart
-     * @param string|null $dateEnd
+     * @param string $dateEnd
      * @throws ValidationException
      */
-    public function __construct(?int $id, string $title, string $description,
-                    ?string $status, string $dateStart, ?string $dateEnd)
+    public function __construct(
+        ?int $id,
+        string $title,
+        string $description,
+        ?string $status,
+        string $dateStart,
+        string $dateEnd)
     {
         $this->setId($id);
         $this->setTitle($title);
@@ -38,6 +43,9 @@ class Tarefa implements JsonSerializable {
         $this->setDateEnd($dateEnd);
     }
 
+    /**
+     * Injeta a implementação do repositório a ser utilizado para persistência
+     */
     public static function setRepository(ITarefaRepository $repository): void
     {
         Tarefa::$repository = $repository;
@@ -48,7 +56,9 @@ class Tarefa implements JsonSerializable {
         return $this->id;
     }
 
+
     /**
+     * @param int|null $id Inteiro positivo ou null
      * @throws ValidationException
      */
     public function setId(?int $id): void
@@ -69,11 +79,12 @@ class Tarefa implements JsonSerializable {
     }
 
     /**
+     * @param string $title Não pode ser uma string vazia
      * @throws ValidationException
      */
     public function setTitle(string $title): void
     {
-        if(strlen($title) == 0) {
+        if(strlen(trim($title)) == 0) {
             throw new ValidationException("Título não pode estar vazio");
         }
         $this->title = $title;
@@ -84,12 +95,14 @@ class Tarefa implements JsonSerializable {
         return $this->description;
     }
 
+
     /**
+     * @param string $description Não pode ser uma string vazia
      * @throws ValidationException
      */
     public function setDescription(string $description): void
     {
-        if(strlen($description) == 0) {
+        if(strlen(trim($description)) == 0) {
             throw new ValidationException("Descrição não pode estar vazia");
         }
         $this->description = $description;
@@ -101,6 +114,7 @@ class Tarefa implements JsonSerializable {
     }
 
     /**
+     * @param string|null $status Valores aceitos para status: 'done' | 'ongoing'
      * @throws ValidationException
      */
     public function setStatus(?string $status): void
@@ -116,12 +130,16 @@ class Tarefa implements JsonSerializable {
         $this->status = $lowercase;
     }
 
+    /**
+     * @return string Representação de Datetime em formato ISO
+     */
     public function getDateStart(): string
     {
-        return $this->dateStart->format('Y-m-d\TH:i');
+        return $this->dateStart->format('Y-m-d');
     }
 
     /**
+     * @param string $dateStr Representação de Datetime em formato ISO
      * @throws ValidationException
      */
     public function setDateStart(string $dateStr): void
@@ -137,32 +155,40 @@ class Tarefa implements JsonSerializable {
         $this->dateStart = $date;
     }
 
-    public function getDateEnd(): string|null
+    /**
+     * @return string Representação de Datetime em formato ISO
+     */
+    public function getDateEnd(): string
     {
-        if($this->dateEnd == null) return null;
-        return $this->dateEnd->format('Y-m-d\TH:i');
+        return $this->dateEnd->format('Y-m-d');
     }
 
+
     /**
+     * Data Final não pode ser igual ou anterior à data de início
+     * @param string|null $dateStr Representação de Datetime em formato ISO
      * @throws ValidationException
      */
     public function setDateEnd(?string $dateStr): void
     {
-        if ($dateStr == null || strlen($dateStr) == 0) {
-            $this->dateEnd = null;
-            return;
+        if(strlen($dateStr) == 0){
+            throw new ValidationException("Prazo final não pode ser nulo");
         }
         try {
             $date = new DateTime($dateStr);
         } catch (Exception $e) {
             throw new ValidationException("Formato de data final está inválido. Tente YYYY-mm-ddTHH:mm");
         }
-        if($date <= $this->dateStart) {
-            throw new ValidationException("O prazo final não pode ser anterior ou igual à data de início");
+        if($date < $this->dateStart) {
+            throw new ValidationException("O prazo final não pode ser anterior à data de início");
         }
         $this->dateEnd = $date;
     }
 
+    /**
+     * Cria uma nova tarefa ou atualiza uma tarefa existente
+     * Uma tarefa é considerada existente se possui ID
+     */
     public function save() : Tarefa {
         if ($this->id == null) {
             return Tarefa::$repository->create($this);
@@ -171,23 +197,35 @@ class Tarefa implements JsonSerializable {
         }
     }
 
+    /**
+     * Retorna todos os registros de tarefas
+     */
     public static function getAll() : array {
         return Tarefa::$repository->get_all();
     }
 
+    /**
+     * Retorna um registro dado o seu ID
+     */
     public static function findById(int $id) : Tarefa | null {
         return Tarefa::$repository->find_by_id($id);
     }
 
+    /**
+     * Remove um registro dado o seu ID
+     */
     public static function delete(int $id) : void {
         Tarefa::$repository->delete($id);
     }
 
+    /**
+     * Checa se um registro existe, dado o seu ID
+     */
     public static function exists(int $id) : bool {
         return Tarefa::$repository->exists($id);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->getId(),
@@ -198,4 +236,5 @@ class Tarefa implements JsonSerializable {
             'date_end' => $this->getDateEnd(),
         ];
     }
+
 }

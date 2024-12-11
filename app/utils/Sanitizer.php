@@ -4,7 +4,10 @@ namespace app\utils;
 
 class Sanitizer {
 
-    public function sanitize(array $data): array
+    /**
+     * Aplica a função htmlspecialchars() em um array
+     */
+    public function escape_html(array $data): array
     {
         foreach ($data as $key => $value) {
             $data[$key] = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');

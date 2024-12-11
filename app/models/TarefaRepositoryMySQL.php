@@ -2,24 +2,30 @@
 
 namespace app\models;
 
-use app\exceptions\NotFoundException;
 use app\exceptions\ValidationException;
 use app\models;
 use Exception;
 use PDO;
 use PDOException;
 
+/**
+ * Implementação do repositório de Tarefas para banco de dados MySQL
+ */
 class TarefaRepositoryMySQL implements ITarefaRepository 
 {
-    private $config;
+    private array $config;
 
-    public function __construct($dbConfig)
+    /**
+     * @param array $dbConfig KEYS: 'host', 'username', 'password', 'database'
+     */
+    public function __construct(array $dbConfig)
     {
         $this->config = $dbConfig;
     }
 
     /**
      * @throws ValidationException
+     * @throws Exception
      */
     public function get_all(): array
     {
@@ -167,6 +173,7 @@ class TarefaRepositoryMySQL implements ITarefaRepository
     }
 
     /**
+     * Inicializa as tabelas relacionadas a Tarefas na base de dados MySQL
      * @throws Exception
      */
     public function migrate() : void {
@@ -179,7 +186,7 @@ class TarefaRepositoryMySQL implements ITarefaRepository
                     `description` varchar(500) NOT NULL,
                     `status` enum('done','ongoing') NOT NULL DEFAULT 'ongoing',
                     `date_start` datetime NOT NULL,
-                    `date_end` datetime DEFAULT NULL,
+                    `date_end` datetime NOT NULL,
                     PRIMARY KEY (`id`)
                     ) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4
                 COLLATE=utf8mb4_0900_ai_ci
@@ -203,6 +210,7 @@ class TarefaRepositoryMySQL implements ITarefaRepository
             $username,
             $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         return $pdo;
     }
 

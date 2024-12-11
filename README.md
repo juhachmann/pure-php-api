@@ -1,49 +1,20 @@
 # Agenda de Tarefas - Backend
 
-Backend em Python para um gerenciador de tarefas
+Backend em PHP para um gerenciador de tarefas. Desenvolvido como uma API para consumo pelo frontend.
 
 ## Instalação
 
 ### Requisitos: 
 
-- Python3+
-- pip
+- PHP
+- composer
 
 ### Passo a passo:
 
-Na pasta raiz do projeto, crie um ambiente virtual do python:
+A partir da pasta raiz do projeto, instale as dependências:
 
 ```bash
-python3 -m venv venv
-```
-
-Ative o ambiente virtual que foi criado:
-
-Windows:
-
-```bash
-# In cmd.exe
-venv\Scripts\activate.bat
-# In PowerShell
-venv\Scripts\Activate.ps1
-```
-
-Linux / MacOS:
-
-```bash
-source venv/bin/activate
-```
-
-A indicação do ambiente virtual deve aparecer no seu terminal de comando, como em:
-
-```bash
-(venv) user@user: $ source venv/bin/activate
-```
-
-Com o ambiente virtual ativo, instale as dependências:
-
-```bash
-pip install -r requirements.txt
+composer install
 ```
 
 Altere o arquivo `.env` inserindo as configurações do banco de dados MySQL e a porta a ser usada pela aplicação:
@@ -54,12 +25,42 @@ PORT=8000
 DB_HOST_MYSQL=localhost
 DB_USER_MYSQL=user
 DB_PASSWORD_MYSQL=password
-DB_DATABASE_MYSQL=todo_python
+DB_DATABASE_MYSQL=todo
 ```
 
-Inicie a aplicação a partir do arquivo `launch.py`. A tabela do banco de dados será criada neste momento
+A partir da pasta `public` onde está localizado o arquivo `index.php`, inicie o servidor.
+As tabelas do banco de dados serão criadas neste momento, se necessário.
 
 ```bash
-python3 launch.py
+php -S localhost:8000
 ```
+
+
+## Endpoints
+
+
+| Método | Endpoint                    | Descrição               | Request Body                      | 
+|--------|-----------------------------|-------------------------|-----------------------------------|
+| POST   | /tarefas                    | criar nova tarefa       | [Tarefa](#Tarefa) (sem id)        | 
+| GET    | /tarefas                    | ver todas as tarefas    |                                   |
+| GET    | /tarefas/{id}               | encontrar tarefa por id |                                   | 
+| PUT    | /tarefas/{id}               | editar uma tarefa       | [Tarefa](#Tarefa) (com ou sem id) | 
+| DELETE | /tarefas/{id}               | deletar uma tarefa       |                                   | 
+
+### Tarefa
+
+```json
+{
+  "id" : 1,
+  "title": "Ler artigo",
+  "description": "Ler artigo para dissertação",
+  "status": "done",
+  "date_start": "2024-12-01",
+  "date_end": "2024-12-05"
+}
+```
+
+### ResponseBody
+
+Respostas no padrão [JSend](https://github.com/omniti-labs/jsend)
 

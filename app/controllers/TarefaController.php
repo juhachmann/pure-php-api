@@ -7,6 +7,7 @@ use app\exceptions\ValidationException;
 use app\models\Tarefa;
 use app\utils\Sanitizer;
 use app\views\ResponseWrapper;
+use app\views\SuccessResponse;
 
 class TarefaController
 {
@@ -14,43 +15,36 @@ class TarefaController
     private Sanitizer $sanitizer;
 
     /**
-     * @param Sanitizer $sanitizer
+     * Constroi e injeta as dependências do Controller
      */
     public function __construct(Sanitizer $sanitizer)
     {
         $this->sanitizer = $sanitizer;
     }
 
-
     /**
+     * Cria uma nova tarefa na aplicação
      * @throws ValidationException
      */
     public function create() : ResponseWrapper{
         $request = $this->getRequest();
-        $request = $this->sanitizer->sanitize($request);
+        $request = $this->sanitizer->escape_html($request);
         $tarefa = $this->buildTarefa($request);
         $tarefa = $tarefa->save();
-        return new ResponseWrapper("success", 201, $tarefa);
+        return new SuccessResponse(201, $tarefa);
     }
 
     /**
-     * @throws ValidationException
-     * @throws NotFoundException
+     * Recupera todas as tarefas da aplicação
      */
-    public function update(int $id): ResponseWrapper
+    public function getAll(): ResponseWrapper
     {
-        if(!Tarefa::exists($id)) {
-            throw new NotFoundException("Tarefa não encontrada");
-        }
-        $request = $this->getRequest();
-        $request = $this->sanitizer->sanitize($request);
-        $tarefa = $this->buildTarefa($request);
-        $tarefa->setId($id);
-        $tarefa = $tarefa->save();
-        return new ResponseWrapper("success", 200, $tarefa);
+        $data = Tarefa::getAll();
+        return new SuccessResponse(200, $data);
     }
 
     /**
+     * Recupera uma tarefa pelo seu ID
      * @throws NotFoundException
      */
     public function getOne(int $id): ResponseWrapper
@@ -59,16 +53,29 @@ class TarefaController
         if($data == null) {
             throw new NotFoundException("Tarefa não encontrada");
         }
-        return new ResponseWrapper("success", 200, $data);
-    }
-
-    public function getAll(): ResponseWrapper
-    {
-        $data = Tarefa::getAll();
-        return new ResponseWrapper("success", 200, $data);
+        return new SuccessResponse(200, $data);
     }
 
     /**
+     * Atualiza os dados de uma tarefa
+     * @throws NotFoundException
+     * @throws ValidationException
+     */
+    public function update(int $id): ResponseWrapper
+    {
+        if(!Tarefa::exists($id)) {
+            throw new NotFoundException("Tarefa não encontrada");
+        }
+        $request = $this->getRequest();
+        $request = $this->sanitizer->escape_html($request);
+        $tarefa = $this->buildTarefa($request);
+        $tarefa->setId($id);
+        $tarefa = $tarefa->save();
+        return new SuccessResponse(200, $tarefa);
+    }
+
+    /**
+     * Remove uma tarefa
      * @throws NotFoundException
      */
     public function delete(int $id): ResponseWrapper
@@ -77,7 +84,7 @@ class TarefaController
             throw new NotFoundException("Tarefa não encontrada");
         }
         Tarefa::delete($id);
-        return new ResponseWrapper("success", 204);
+        return new SuccessResponse(204);
     }
 
     /**
@@ -91,11 +98,9 @@ class TarefaController
         $status = $input["status"] ?? null;
         $dateStart = $input["date_start"];
         $dateEnd = $input["date_end"] ?? null;
-        return new Tarefa($id, $title, $description, $status,
-            $dateStart, $dateEnd);
+        return new Tarefa($id, $title, $description, $status, $dateStart, $dateEnd);
     }
 
-    // O acesso ao "requestBody" não deve ficar aqui
     private function getRequest() : mixed
     {
         return json_decode(file_get_contents('php://input'), true);
